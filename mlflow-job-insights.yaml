@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Template
 labels:
-  application: mlflow-job
+  application: mlflow-job-insights
 
 metadata:
   name: mlflow-job
@@ -40,6 +40,14 @@ objects:
               value: "${MLFLOW_EXPERIMENT_ID}"
             - name:  MLFLOW_TRACKING_URI
               value: "${MLFLOW_TRACKING_URI}"
+            - name:  K_CLUSTERS
+              value: "${INSIGHTS_K_CLUSTERS}"
+            - name:  PCA_DIMENSIONS
+              value: "${INSIGHTS_PCA_DIMENSIONS}"
+            - name:  DAY_1
+              value: "${INSIGHTS_DAY_1}"
+            - name:  DAY_2
+              value: "${INSIGHTS_DAY_2}"
         restartPolicy: Never
 
 parameters:
@@ -51,4 +59,27 @@ parameters:
 - name: MLFLOW_TRACKING_URI
   required: true
 - name: MLFLOW_EXPERIMENT_ID
+  required: true
+- name: SECRET_KEY
+- name: JOB_CPU_REQUEST
+  value: "1000m"
+  required: true
+- name: JOB_MEMORY_REQUEST
+  value: "4Gi"
+  required: true
+- name: JOB_CPU_LIMIT
+  value: "4000m"
+  required: true
+- name: JOB_MEMORY_LIMIT
+  value: "16Gi"
+  required: true
+- name: INSIGHTS_K_CLUSTERS
+  value: "4"
+- name: INSIGHTS_PCA_DIMENSIONS
+  value: "3"
+- name: INSIGHTS_DAY_1
+  value: "2018-08-20"
+- name: INSIGHTS_DAY_2
+  value: "2018-08-21"
+- name: SECRET_KEY
   required: true
