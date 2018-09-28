@@ -7,7 +7,6 @@ metadata:
   name: mlflow-job
   annotations:
     description: "Data Hub - MLFlow Job "
-    iconClass: "icon-redis"
     tags: "mlflow,aicoe,datahub,mljob"
 
 objects:
@@ -62,7 +61,6 @@ parameters:
 - name: MLFLOW_EXPERIMENT_ID
   required: true
 - name: SECRET_KEY
-  required: true
 - name: JOB_CPU_REQUEST
   value: "1000m"
   required: true

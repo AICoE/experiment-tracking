@@ -4,7 +4,6 @@ metadata:
   name: mlflow-tracking-server
   annotations:
     description: "Data Hub - MLFlow Tracking Server "
-    iconClass: "icon-redis"
     tags: "mlflow,aicoe,datahub"
 objects:
 - apiVersion: v1

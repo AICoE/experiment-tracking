@@ -9,7 +9,6 @@ metadata:
   name: mlflow-job-bc
   annotations:
     description: "Data Hub - MLFlow Job Build Config "
-    iconClass: "icon-redis"
     tags: "mlflow,aicoe,datahub,mljob"
 
 
