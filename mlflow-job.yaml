@@ -24,10 +24,7 @@ objects:
         name: ${APPLICATION_NAME}
       spec:
         containers:
-        - envFrom:
-          - secretRef:
-              name: ${SECRET_KEY}
-          image: ${IMAGE_URI}:latest
+        - image: ${IMAGE_URI}:latest
           name: ${APPLICATION_NAME}
           imagePullPolicy: Always
           resources:
@@ -35,6 +32,9 @@ objects:
               memory: "${JOB_MEMORY_REQUEST}"
             limits:
               memory: "${JOB_MEMORY_LIMIT}"
+          envFrom:
+          - secretRef:
+              name: ${SECRET_KEY}
           env:
             - name:  MLFLOW_EXPERIMENT_ID
               value: "${MLFLOW_EXPERIMENT_ID}"
@@ -50,5 +50,6 @@ parameters:
   required: true
 - name: MLFLOW_TRACKING_URI
   required: true
+  value: http://mlflow-server-svc:5000/
 - name: MLFLOW_EXPERIMENT_ID
   required: true
