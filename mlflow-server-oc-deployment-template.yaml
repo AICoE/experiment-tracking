@@ -1,0 +1,120 @@
+apiVersion: v1
+kind: Template
+
+labels:
+  application: ${APPLICATION_NAME}
+
+metadata:
+  name: prometheus-flatliner-live-deployment-template
+
+parameters:
+- description: The name for job
+  value: 'mlflow-server'
+  generate: expression
+  name: APPLICATION_NAME
+  required: true
+- name: FLT_DEBUG_MODE
+  description: Enable verbose log for debugging
+  value: 'False'
+  required: false
+
+objects:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    name: ${APPLICATION_NAME}
+    labels:
+      app: ${APPLICATION_NAME}
+  spec:
+    dockerImageRepository: ${APPLICATION_NAME}
+    tags:
+    - name: latest
+    lookupPolicy:
+      local: true
+
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    name: ${APPLICATION_NAME}
+    labels:
+      app: ${APPLICATION_NAME}
+  spec:
+    resources:
+      limits:
+        memory: 2Gi
+        cpu: "1"
+    output:
+      to:
+        kind: ImageStreamTag
+        name: ${APPLICATION_NAME}:latest
+    source:
+      type: "Dockerfile"
+      dockerfile: "FROM docker.io/centos/python-36-centos7:latest\nRUN pip install mlflow"
+    strategy:
+      type: Docker
+    triggers:
+    - imageChange: {}
+      type: ImageChange
+    - type: ConfigChange
+
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: ${APPLICATION_NAME}
+    labels:
+      deploymentConfig: ${APPLICATION_NAME}
+      app: ${APPLICATION_NAME}
+  spec:
+    replicas: 1
+    selector:
+      deploymentConfig: ${APPLICATION_NAME}
+    strategy:
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          deploymentConfig: ${APPLICATION_NAME}
+          app: ${APPLICATION_NAME}
+      spec:
+        containers:
+        - env:
+          - name: FLT_DEBUG_MODE
+            value: "${FLT_DEBUG_MODE}"
+          image: ${APPLICATION_NAME}
+          imagePullPolicy: IfNotPresent
+          name: ${APPLICATION_NAME}
+          command: ["/bin/sh","-c"]
+          args: ["mlflow server -h 0.0.0.0"]
+          resources:
+            requests:
+              memory: 500Mi
+              cpu: "0.5"
+            limits:
+              memory: 1Gi
+              cpu: "1"
+          terminationMessagePath: /dev/termination-log
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - ${APPLICATION_NAME}
+        from:
+          kind: ImageStreamTag
+          name: ${APPLICATION_NAME}:latest
+      type: ImageChange
+    - type: ConfigChange
+
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: ${APPLICATION_NAME}-svc
+    labels:
+      app: ${APPLICATION_NAME}
+  spec:
+    ports:
+    - port: 5000
+      name: http
+    selector:
+      app: ${APPLICATION_NAME}
