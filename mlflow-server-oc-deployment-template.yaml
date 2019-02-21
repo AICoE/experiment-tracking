@@ -9,13 +9,12 @@ metadata:
 
 parameters:
 - description: The name for job
-  value: 'mlflow-server'
-  generate: expression
+  value: 'mlflow-server-test'
   name: APPLICATION_NAME
   required: true
 
 objects:
-- apiVersion: v1
+- apiVersion: image.openshift.io/v1
   kind: ImageStream
   metadata:
     name: ${APPLICATION_NAME}
@@ -28,7 +27,7 @@ objects:
     lookupPolicy:
       local: true
 
-- apiVersion: v1
+- apiVersion: build.openshift.io/v1
   kind: BuildConfig
   metadata:
     name: ${APPLICATION_NAME}
@@ -53,7 +52,7 @@ objects:
       type: ImageChange
     - type: ConfigChange
 
-- apiVersion: v1
+- apiVersion: apps.openshift.io/v1
   kind: DeploymentConfig
   metadata:
     name: ${APPLICATION_NAME}
@@ -113,7 +112,7 @@ objects:
     selector:
       app: ${APPLICATION_NAME}
 
-- apiVersion: v1
+- apiVersion: route.openshift.io/v1
   kind: Route
   metadata:
     name: ${APPLICATION_NAME}-route
