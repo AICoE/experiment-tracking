@@ -5,7 +5,7 @@ labels:
   application: ${APPLICATION_NAME}
 
 metadata:
-  name: prometheus-flatliner-live-deployment-template
+  name: mlflow-server-deployment-template
 
 parameters:
 - description: The name for job
@@ -13,10 +13,6 @@ parameters:
   generate: expression
   name: APPLICATION_NAME
   required: true
-- name: FLT_DEBUG_MODE
-  description: Enable verbose log for debugging
-  value: 'False'
-  required: false
 
 objects:
 - apiVersion: v1
@@ -78,8 +74,6 @@ objects:
       spec:
         containers:
         - env:
-          - name: FLT_DEBUG_MODE
-            value: "${FLT_DEBUG_MODE}"
           image: ${APPLICATION_NAME}
           imagePullPolicy: IfNotPresent
           name: ${APPLICATION_NAME}
@@ -109,7 +103,7 @@ objects:
 - apiVersion: v1
   kind: Service
   metadata:
-    name: ${APPLICATION_NAME}-svc
+    name: ${APPLICATION_NAME}-service
     labels:
       app: ${APPLICATION_NAME}
   spec:
@@ -118,3 +112,14 @@ objects:
       name: http
     selector:
       app: ${APPLICATION_NAME}
+
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: ${APPLICATION_NAME}-route
+    labels:
+      app: ${APPLICATION_NAME}
+  spec:
+    to:
+      kind: Service
+      name: ${APPLICATION_NAME}-service
