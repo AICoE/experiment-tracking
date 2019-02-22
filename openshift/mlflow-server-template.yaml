@@ -5,11 +5,11 @@ labels:
   application: ${APPLICATION_NAME}
 
 metadata:
-  name: mlflow-server-deployment-template
+  name: mlflow-server-template
 
 parameters:
-- description: The name for job
-  value: 'mlflow-server-test'
+- description: Application name
+  value: 'mlflow-server'
   name: APPLICATION_NAME
   required: true
 
