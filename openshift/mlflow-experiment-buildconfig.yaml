@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: Template
+
+labels:
+  application: ${APPLICATION_NAME}
+
+metadata:
+  name: mlflow-experiment-bc
+
+parameters:
+- description: Application name
+  value: 'mlflow-experiment-image'
+  name: APPLICATION_NAME
+  required: true
+- name: GIT_URI
+  value: https://github.com/AICoE/experiment-tracking-template.git
+  required: true
+- name: APP_FILE
+  value: app.py
+  required: true
+  description: Name of the Python application file to be run during the job.
+- name: LIMIT_CPU
+  value: "1"
+  description: Limit number of CPUs allocated to the container
+- name: LIMIT_MEM
+  value: "2G"
+  description: Limit amount of memory allocated to the container
+
+objects:
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    name: ${APPLICATION_NAME}
+    labels:
+      app: ${APPLICATION_NAME}
+  spec:
+    dockerImageRepository: ${APPLICATION_NAME}
+    tags:
+    - name: latest
+    lookupPolicy:
+      local: true
+
+- apiVersion: build.openshift.io/v1
+  kind: BuildConfig
+  metadata:
+    name: ${APPLICATION_NAME}
+    labels:
+      app: ${APPLICATION_NAME}
+  spec:
+    resources:
+      limits:
+        memory: ${LIMIT_MEM}
+        cpu: ${LIMIT_CPU}
+    output:
+      to:
+        kind: ImageStreamTag
+        name: ${APPLICATION_NAME}:latest
+    source:
+      git:
+        uri: ${GIT_URI}
+      type: Git
+    strategy:
+      type: Source
+      sourceStrategy:
+        env:
+        - name: APP_FILE
+          value: "${APP_FILE}"
+        - name: GIT_SSL_NO_VERIFY
+          value: 'true'
+        - name: ENABLE_PIPENV
+          value: '1'
+        forcePull: true
+        from:
+          kind: DockerImage
+          name: 'docker.io/centos/python-36-centos7:latest'
+    triggers:
+    - imageChange: {}
+      type: ImageChange
+    - type: ConfigChange
