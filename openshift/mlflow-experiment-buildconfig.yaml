@@ -19,6 +19,12 @@ parameters:
   value: app.py
   required: true
   description: Name of the Python application file to be run during the job.
+- name: LIMIT_CPU
+  value: "1"
+  description: Limit number of CPUs allocated to the container
+- name: LIMIT_MEM
+  value: "2G"
+  description: Limit amount of memory allocated to the container
 
 objects:
 - apiVersion: image.openshift.io/v1
@@ -43,7 +49,8 @@ objects:
   spec:
     resources:
       limits:
-        memory: 1Gi
+        memory: ${LIMIT_MEM}
+        cpu: ${LIMIT_CPU}
     output:
       to:
         kind: ImageStreamTag

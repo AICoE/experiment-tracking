@@ -14,8 +14,10 @@ parameters:
   name: APPLICATION_NAME
   required: true
 - name: MLFLOW_TRACKING_URI
-  value: http://$(MLFLOW_SERVER_SERVICE_SERVICE_HOST):$(MLFLOW_SERVER_SERVICE_SERVICE_PORT) # To use the internal host and port number to connect to the mlflow tracking server
+  value: http://$(MLFLOW_SERVER_SERVICE_SERVICE_HOST):$(MLFLOW_SERVER_SERVICE_SERVICE_PORT)
   required: true
+  # To use the internal host and port number to connect to the mlflow tracking server
+  description: "URI to the MLFlow server. Only required if the MLFlow server is in another Namespace"
 - name: APP_IMAGE_URI
   description: "Name of the application image to be pulled from the registry"
   value: "mlflow-experiment-image"
@@ -23,6 +25,14 @@ parameters:
 - name: APP_IMAGE_TAG
   value: "latest"
   required: true
+- name: LIMIT_CPU
+  value: "1"
+  description: "Limit number of CPUs allocated to the job"
+  required: false
+- name: LIMIT_MEM
+  value: "2G"
+  description: "Limit amount of memory allocated to the job"
+  required: false
 
 
 objects:
@@ -46,7 +56,8 @@ objects:
             requests:
               memory: 500Mi
             limits:
-              memory: 1Gi
+              memory: ${LIMIT_MEM}
+              cpu: ${LIMIT_CPU}
           env:
           - name: MLFLOW_TRACKING_URI
             value: ${MLFLOW_TRACKING_URI}
